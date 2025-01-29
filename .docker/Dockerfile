@@ -62,13 +62,13 @@ RUN rm -rf composer-setup.php
 RUN mkdir -p /etc/supervisor.d/
 RUN mkdir -p /var/log/supervisor
 
-# Criando grupo e usuário para o Supervisor (corrigido)
+# Creating group and user for Supervisor
 RUN addgroup -S supervisor && adduser -S supervisor -G supervisor
 
-# Criando diretório e garantindo permissões corretas
+# Creating directory and setting correct permissions
 RUN mkdir -p /var/log/supervisor && chown -R supervisor:supervisor /var/log/supervisor
 
-# Criando e ajustando permissões do log do Supervisor (Correção do erro de permissão)
+# Creating and adjusting Supervisor log permissions
 RUN touch /var/log/supervisor/supervisord.log
 RUN chown -R supervisor:supervisor /var/log/supervisor
 RUN chmod 664 /var/log/supervisor/supervisord.log
@@ -93,19 +93,28 @@ COPY ./conf/nginx.conf /etc/nginx/
 COPY ./conf/nginx-php.conf /etc/nginx/modules/
 
 RUN mkdir -p /var/lib/nginx/logs/ \
-    mkdir -p /var/lib/nginx/tmp/client_body \
-    mkdir -p /run/nginx/
+    && mkdir -p /var/lib/nginx/tmp/client_body \
+    && mkdir -p /run/nginx/
 
 RUN touch /run/nginx/nginx.pid
 
-RUN chown -R supervisor:supervisor /var/lib/nginx /etc/nginx /run/nginx /run/nginx/nginx.pid /var/log/nginx
+# Adjust permissions for nginx log and temp directories
+RUN chown -R nginx:nginx /var/lib/nginx /etc/nginx /run/nginx /run/nginx/nginx.pid /var/log/nginx
+RUN chmod -R 775 /var/lib/nginx/tmp /var/lib/nginx/logs /run/nginx/
 
+# Create symlinks for logs
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    ln -sf /dev/stderr /var/log/nginx/error.log
+    && ln -sf /dev/stderr /var/log/nginx/error.log
+
+# Ensure PHP has permissions to temp directories
+RUN mkdir -p /var/lib/php/sessions /tmp/uploads \
+    && chown -R nginx:nginx /var/lib/php/sessions /tmp/uploads \
+    && chmod -R 775 /var/lib/php/sessions /tmp/uploads
 
 # Building process
-COPY . .
+COPY . . 
 
 EXPOSE 8000
 
+# Run supervisord
 CMD ["supervisord", "-c", "/etc/supervisor.d/supervisord.ini"]
