@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+str=$1
+container_id=$(docker ps -qf "name=web-1")
+
+if command -v docker-compose &> /dev/null; then
+    echo "docker-compose ok"
+else
+    echo "docker-compose is not installed."
+fi
+
+# Bash do container
+if [ "$str" = "bash" ]; then
+    docker exec -it $container_id bash
+fi
+
+# Instala o Laravel
+if [ "$str" = "laravel:install" ]; then
+    docker exec -it $container_id /bin/bash -c "
+    rm -rf *.*
+    composer create-project laravel/laravel .
+    "
+fi
+
+# Permissões do container
+if [ "$str" = "set:permissions" ]; then
+    docker exec -it $container_id bash -c "
+    # Adiciona um grupo chamado 'www-data' com ID de grupo (GID) 1000
+    addgroup -g 1000 www-data
+
+    # Adiciona um usuário com UID 1000 ao grupo 'www-data'
+    # -D: Define um usuário sem uma senha
+    # -u 1000: Define o UID do usuário como 1000
+    # -G www-data: Define o grupo principal do usuário como 'www-data'
+    # -s /sbin/nologin: Define o shell do usuário como /sbin/nologin para evitar login direto
+    adduser -D -u 1000 -G www-data -s /sbin/nologin www-data
+
+    # Altera o proprietário e o grupo de todos os arquivos e diretórios em /var/www/html para o usuário e grupo 'www-data'
+    chown -R 1000:www-data /var/www/html
+
+    # Altera o proprietário e o grupo do diretório 'storage' para 'www-data'
+    chown -R www-data:www-data /var/www/html/storage
+
+    # Executa o comando 'php artisan storage:link' para criar um link simbólico de public/storage para storage/app/public
+    php artisan storage:link
+
+    # Concede permissões de escrita para o proprietário, grupo e outros usuários ao diretório 'storage' e subdiretórios
+    chmod o+w /var/www/html/storage/ -R
+    "
+fi
