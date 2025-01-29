@@ -62,11 +62,21 @@ RUN rm -rf composer-setup.php
 RUN mkdir -p /etc/supervisor.d/
 RUN mkdir -p /var/log/supervisor
 
+# Criando grupo e usuário para o Supervisor (corrigido)
+RUN addgroup -S supervisor && adduser -S supervisor -G supervisor
+
+# Criando diretório e garantindo permissões corretas
+RUN mkdir -p /var/log/supervisor && chown -R supervisor:supervisor /var/log/supervisor
+
+# Criando e ajustando permissões do log do Supervisor (Correção do erro de permissão)
+RUN touch /var/log/supervisor/supervisord.log
+RUN chown -R supervisor:supervisor /var/log/supervisor
+RUN chmod 664 /var/log/supervisor/supervisord.log
+
 # Copy supervisor configuration
 COPY ./supervisord.ini /etc/supervisor.d/supervisord.ini
 
 # Create user and group for supervisor process
-RUN addgroup -S supervisor && adduser -S supervisor -G supervisor
 RUN chown -R supervisor:supervisor /var/log/supervisor /etc/supervisor.d
 
 # Configure PHP
@@ -93,13 +103,9 @@ RUN chown -R supervisor:supervisor /var/lib/nginx /etc/nginx /run/nginx /run/ngi
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     ln -sf /dev/stderr /var/log/nginx/error.log
 
-
 # Building process
-
 COPY . .
 
 EXPOSE 8000
-
-USER supervisor
 
 CMD ["supervisord", "-c", "/etc/supervisor.d/supervisord.ini"]
