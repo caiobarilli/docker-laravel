@@ -50,3 +50,19 @@ Exemplo de uso:
 ./run laravel:install # Instala um novo projeto Laravel dentro do contêiner Docker.
 ./run laravel:permissions  # Configura as permissões do projeto Laravel dentro do contêiner Docker.
 ```
+
+Exemplo do .env:
+
+```bash
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=laravel
+DB_PASSWORD=laravel
+
+REDIS_CLIENT=predis
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
