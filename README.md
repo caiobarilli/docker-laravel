@@ -13,6 +13,7 @@
 **Redis**: Utilizado para armazenamento em cache, gerenciamento de sessão e comunicação entre componentes de aplicativos devido à sua alta velocidade e eficiência.
 
 ## Requisitos
+
 - Docker instalado
 - Docker Compose instalado
 
@@ -30,10 +31,29 @@ Suba a primera vez os containers com o comando:
 docker-compose up
 ```
 
+🔹 No Windows:
+Abra um terminal como administrador e execute:
+
+```sh
+notepad C:\Windows\System32\drivers\etc\hosts
+```
+
+🔹 No Linux/macOS:
+Abra um terminal e execute:
+
+```sh
+sudo nano /etc/hosts
+```
+
+Verifique se existe a linha:
+
+```sh
+127.0.0.1 app.laravel.test
+```
+
 # Script Bash "run"
 
 Este é um script em bash chamado "run" que pode ser usado para automatizar tarefas comuns em um ambiente de desenvolvimento Laravel/Lumen que utiliza contêineres Docker.
-
 
 ## Uso
 

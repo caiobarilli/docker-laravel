@@ -6,7 +6,8 @@ services:
             context: ./.docker/
             dockerfile: Dockerfile
         ports:
-            - "8000:80"
+            - "80:80"
+            - "443:443"
         restart: always
         volumes:
             - ./laravel:/var/www/html

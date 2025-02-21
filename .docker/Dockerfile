@@ -51,6 +51,8 @@ RUN apk --no-cache add \
     php83-redis \
     php83-posix \
     php83-pcntl \
+    php83-bcmath \
+    php83-gmp \
     php83-pdo_sqlite
 
 # Installing composer
@@ -88,6 +90,16 @@ COPY ./php.ini /etc/php83/php.ini
 COPY ./conf/php-fpm.conf /etc/php83/php-fpm.conf
 COPY ./conf/www.conf /etc/php83/php-fpm.d/www.conf
 
+# Criando diretório para os certificados SSL
+RUN mkdir -p /etc/nginx/ssl
+
+# Gerando certificado SSL autoassinado
+RUN apk add --no-cache openssl && \
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/nginx/ssl/nginx.key \
+    -out /etc/nginx/ssl/nginx.crt \
+    -subj "/C=BR/ST=SaoPaulo/L=SaoPaulo/O=Vestcasa/CN=app.laravel.test"
+
 # Configure nginx
 COPY ./conf/nginx.conf /etc/nginx/
 COPY ./conf/nginx-php.conf /etc/nginx/modules/
@@ -112,9 +124,9 @@ RUN mkdir -p /var/lib/php/sessions /tmp/uploads \
     && chmod -R 775 /var/lib/php/sessions /tmp/uploads
 
 # Building process
-COPY . . 
+COPY . .
 
-EXPOSE 8000
+EXPOSE 80 443
 
 # Run supervisord
 CMD ["supervisord", "-c", "/etc/supervisor.d/supervisord.ini"]
