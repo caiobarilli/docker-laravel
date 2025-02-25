@@ -14,6 +14,17 @@ if [ "$str" = "bash" ]; then
     docker exec -it $container_id bash
 fi
 
+if [ "$str" = "ssl:admin" ]; then
+    echo "Copiando certificados SSL .."
+    
+    mkdir -p ./.docker/ssl/
+
+    docker cp "$container_id:/etc/nginx/ssl/nginx.crt" ./.docker/ssl/nginx.crt
+
+    echo "Certificados SSL copiados com sucesso!"
+fi
+
+
 # Instala o Laravel
 if [ "$str" = "laravel:install" ]; then
     docker exec -it $container_id /bin/bash -c "
