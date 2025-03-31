@@ -1,0 +1,52 @@
+services:
+
+    # Web
+    web:
+        build:
+            context: ./.docker/
+            dockerfile: Dockerfile
+        ports:
+            - "443:443"
+        restart: always
+        volumes:
+            - ./laravel:/var/www/html
+        networks:
+            - laravel
+
+    # Redis
+    redis:
+        image: redis:7.2.4
+        ports:
+            - "6379:6379"
+        networks:
+            - laravel
+        restart: always
+        volumes:
+            - redis_data:/data
+        command: [ "redis-server", "--appendonly", "yes" ]
+
+    # MySQL
+    mysql:
+        image: mariadb:latest
+        restart: always
+        environment:
+            MARIADB_ROOT_PASSWORD: root
+            MARIADB_DATABASE: laravel
+            MARIADB_USER: laravel
+            MARIADB_PASSWORD: laravel
+        ports:
+            - "3306:3306"
+        volumes:
+            - './.docker/db_data:/var/lib/mysql'
+        networks:
+            - laravel
+
+networks:
+    laravel:
+        driver: bridge
+
+volumes:
+    db_data:
+        driver: local
+    redis_data:
+        driver: local
