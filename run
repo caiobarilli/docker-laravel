@@ -20,7 +20,7 @@ if [ "$str" = "ssl" ]; then
     
     mkdir -p ./.docker/ssl/
 
-    docker cp "$container_id:/etc/nginx/ssl/nginx.crt" ./.docker/ssl/nginx.crt
+    docker cp "$container_id:/usr/local/share/ca-certificates/nginx.crt" ./.docker/ssl/nginx.crt
 
     echo "Certificados SSL copiados com sucesso!"
 fi
