@@ -99,7 +99,13 @@ RUN apk add --no-cache openssl && \
     -keyout /etc/nginx/ssl/nginx.key \
     -out /etc/nginx/ssl/nginx.crt \
     -subj "/C=BR/ST=SaoPaulo/L=SaoPaulo/O=LaravelApp/CN=app.laravel.test" \
-    -addext "subjectAltName = DNS:app.laravel.test"
+    -addext "subjectAltName = DNS:app.laravel.test" && \
+    \
+    # Copiando para o diretório de certificados confiáveis do sistema
+    cp /etc/nginx/ssl/nginx.crt /usr/local/share/ca-certificates/nginx.crt && \
+    \
+    # Atualizando a lista de certificados confiáveis
+    update-ca-certificates
 
 # Configure nginx
 COPY ./conf/nginx.conf /etc/nginx/
